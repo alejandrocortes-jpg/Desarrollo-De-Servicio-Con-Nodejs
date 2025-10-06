@@ -1,30 +1,40 @@
-const paginaService = require('../services/paginaService');
-const path = require('path');
+const { winstonLogger, bunyanLogger, pinoLogger, log } = require('../logger');
+const { getExampleService, getDataService } = require('../services/exampleService');
 
-exports.inicio = (req, res) => {
-  const data = paginaService.getInicioData();
-  res.send(`<h1>${data.mensaje}</h1><p>Fecha: ${data.fecha}</p>
-            <nav>
-              <a href="/contacto">Contacto</a> |
-              <a href="/menu">Menú</a> |
-              <a href="/nosotros">Nosotros</a>
-            </nav>`);
+const getExample = (req, res) => {
+  winstonLogger.info('getExample llamado');
+  bunyanLogger.info('getExample llamado');
+  pinoLogger.info('getExample llamado');
+  log.info('getExample llamado');
+
+  try {
+    const data = getExampleService();
+    res.json({ message: '¡Funciona!', data });
+  } catch (error) {
+    winstonLogger.error(`Error: ${error.message}`);
+    bunyanLogger.error(`Error: ${error.message}`);
+    pinoLogger.error(`Error: ${error.message}`);
+    log.error(`Error: ${error.message}`);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
 
-exports.contacto = (req, res) => {
-  res.sendFile(path.join(__dirname, '../views/contacto.html'));
+const getData = (req, res) => {
+  winstonLogger.info('getData llamado');
+  bunyanLogger.info('getData llamado');
+  pinoLogger.info('getData llamado');
+  log.info('getData llamado');
+
+  try {
+    const result = getDataService();
+    res.json({ data: result });
+  } catch (error) {
+    winstonLogger.error(`Error: ${error.message}`);
+    bunyanLogger.error(`Error: ${error.message}`);
+    pinoLogger.error(`Error: ${error.message}`);
+    log.error(`Error: ${error.message}`);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
 
-exports.menu = (req, res) => {
-  res.sendFile(path.join(__dirname, '../views/menu.html'));
-};
-
-exports.nosotros = (req, res) => {
-  res.sendFile(path.join(__dirname, '../views/nosotros.html'));
-};
-
-// API que devuelve el menú en JSON
-exports.apiMenu = (req, res) => {
-  const platillos = paginaService.getMenu();
-  res.json(platillos);
-};
+module.exports = { getExample, getData };
